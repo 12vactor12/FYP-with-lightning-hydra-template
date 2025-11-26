@@ -11,7 +11,7 @@ scheduler:
   _partial_: true
   mode: min
   factor: 0.1
-  patience: 5
+  patience: 3
 
 net:
   _target_: src.models.components.orchid_models.OrchidModel
@@ -21,5 +21,5 @@ net:
   freeze_backbone: false
 
 # compile model for faster training with pytorch 2.0
-compile: false
+compile: True
 num_classes: 10

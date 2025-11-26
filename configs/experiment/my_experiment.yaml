@@ -1,0 +1,76 @@
+# @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=my_experiment
+
+# 实验名称和标签
+task_name: "train"
+tags: ["my_experiment", "custom_model"]
+
+# 随机种子
+seed: 42
+
+# 覆盖默认配置
+defaults:
+  - override /data: my_dataset.yaml
+  - override /model: my_model.yaml
+  - override /callbacks: default.yaml
+  - override /trainer: default.yaml
+  - override /logger: tensorboard.yaml
+
+# 训练配置
+train: true
+test: true
+ckpt_path: null
+
+# 训练器配置
+trainer:
+  # 最大训练轮数
+  max_epochs: 50
+  
+  # 最小训练轮数
+  min_epochs: 10
+  
+  # 梯度裁剪值
+  gradient_clip_val: 0.5
+  
+  # 验证间隔
+  val_check_interval: 0.5  # 每训练0.5个epoch进行一次验证
+  
+  # 梯度累积步数
+  accumulate_grad_batches: 1
+  
+  # 确定性训练
+  deterministic: true
+
+# 回调配置
+callbacks:
+  # 模型检查点配置
+  model_checkpoint:
+    monitor: "val/acc_best"
+    mode: "max"
+    save_top_k: 3
+    save_last: true
+    filename: "{epoch}-{val/acc:.2f}"
+  
+  # 早停配置
+  early_stopping:
+    monitor: "val/loss"
+    mode: "min"
+    patience: 10
+    verbose: true
+
+# 日志配置
+logger:
+  tensorboard:
+    tags: ${tags}
+    name: "my_experiment"
+  
+  # 可以同时使用多个日志器
+  # wandb:
+  #   project: "my_project"
+  #   entity: "my_entity"
+  #   tags: ${tags}
+
+# 调试配置
+# debug: default

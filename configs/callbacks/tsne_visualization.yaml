@@ -1,0 +1,6 @@
+# t-SNE Visualization Callback Configuration
+
+_tsne_visualization:
+  _target_: src.utils.tsne_callback.TSNEVisualizationCallback
+  every_n_epochs: 5  # Generate visualization every 5 epochs
+  n_samples: 1000  # Number of samples to use for visualization

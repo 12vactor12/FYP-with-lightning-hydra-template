@@ -27,6 +27,7 @@ rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 from src.utils import (
     RankedLogger,
     extras,
+    instantiate_callbacks,  # 添加这一行
     instantiate_loggers,
     log_hyperparameters,
     task_wrapper,
@@ -56,8 +57,11 @@ def evaluate(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     log.info("Instantiating loggers...")
     logger: List[Logger] = instantiate_loggers(cfg.get("logger"))
 
+    log.info("Instantiating callbacks...")
+    callbacks = instantiate_callbacks(cfg.get("callbacks"))
+
     log.info(f"Instantiating trainer <{cfg.trainer._target_}>")
-    trainer: Trainer = hydra.utils.instantiate(cfg.trainer, logger=logger)
+    trainer: Trainer = hydra.utils.instantiate(cfg.trainer, logger=logger, callbacks=callbacks)
 
     object_dict = {
         "cfg": cfg,

@@ -3,9 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 from torchvision import transforms
-from pytorch_grad_cam import GradCAM, GradCAMPlusPlus
-from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
-from pytorch_grad_cam.utils.image import show_cam_on_image
+from torchcam.methods import GradCAM as TorchGradCAM
 from src.models.orchid_module import OrchidLitModule
 import os
 import argparse
@@ -55,20 +53,16 @@ def preprocess_image(image_path, image_size=224):
     
     return input_tensor, original_image_np
 
-def generate_gradcam(model, input_tensor, target_layers, target_class=None):
-    """Generate Grad-CAM heatmap for the given input.
+def generate_gradcam(model, input_tensor, target_class=None):
+    """Generate Grad-CAM heatmap for the given input using torchcam.
     
     :param model: The trained model.
     :param input_tensor: The preprocessed input tensor.
-    :param target_layers: The target layers for Grad-CAM.
     :param target_class: The target class index. If None, uses the predicted class.
     :return: A tuple of (heatmap, predicted_class).
     """
     # Set model to evaluation mode
     model.eval()
-    
-    # Create Grad-CAM object
-    cam = GradCAM(model=model.net, target_layers=target_layers)
     
     # If target_class is None, use the predicted class
     if target_class is None:
@@ -78,14 +72,18 @@ def generate_gradcam(model, input_tensor, target_layers, target_class=None):
     else:
         predicted_class = target_class
     
-    # Set targets
-    targets = [ClassifierOutputTarget(predicted_class)]
+    # Create Grad-CAM object using torchcam
+    cam_extractor = TorchGradCAM(model.net)
     
     # Generate CAM
-    grayscale_cam = cam(input_tensor=input_tensor, targets=targets)
-    grayscale_cam = grayscale_cam[0, :]
+    with torch.no_grad():
+        out = model.net(input_tensor)
+    cam = cam_extractor(predicted_class, out)
     
-    return grayscale_cam, predicted_class
+    # Get the first CAM map
+    cam = cam[0].cpu().numpy()
+    
+    return cam, predicted_class
 
 def visualize_and_save_gradcam(image_path, model, model_name, save_dir, device):
     """Generate and save Grad-CAM visualization for a single image.
@@ -100,14 +98,17 @@ def visualize_and_save_gradcam(image_path, model, model_name, save_dir, device):
     input_tensor, original_image_np = preprocess_image(image_path)
     input_tensor = input_tensor.to(device)
     
-    # Get target layers
-    target_layers = get_target_layers(model_name, model)
-    
     # Generate Grad-CAM
-    grayscale_cam, predicted_class = generate_gradcam(model, input_tensor, target_layers)
+    cam, predicted_class = generate_gradcam(model, input_tensor)
     
-    # Create visualization
-    visualization = show_cam_on_image(original_image_np, grayscale_cam, use_rgb=True)
+    # Resize CAM to match image size
+    cam = np.array(Image.fromarray(cam).resize((original_image_np.shape[1], original_image_np.shape[0]), Image.BILINEAR))
+    
+    # Create visualization by overlaying CAM on image
+    visualization = (original_image_np * 255).astype(np.uint8)
+    cam = (cam * 255).astype(np.uint8)
+    cam_colored = plt.cm.jet(cam)[..., :3] * 255
+    visualization = (visualization * 0.7 + cam_colored * 0.3).astype(np.uint8)
     
     # Save the visualization
     image_name = os.path.basename(image_path)

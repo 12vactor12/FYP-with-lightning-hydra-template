@@ -54,4 +54,8 @@ def log_hyperparameters(object_dict: Dict[str, Any]) -> None:
 
     # send hparams to all loggers
     for logger in trainer.loggers:
-        logger.log_hyperparams(hparams)
+        # Remove tags from hparams for TensorBoardLogger since it doesn't support tags parameter
+        logger_hparams = hparams.copy()
+        if hasattr(logger, '__class__') and logger.__class__.__name__ == 'TensorBoardLogger':
+            logger_hparams.pop('tags', None)
+        logger.log_hyperparams(logger_hparams)

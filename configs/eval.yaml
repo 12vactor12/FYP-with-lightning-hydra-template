@@ -1,18 +1,19 @@
 # @package _global_
-
+#在测试集上评估模型
 defaults:
   - _self_
-  - data: mnist # choose datamodule with `test_dataloader()` for evaluation
-  - model: mnist
-  - logger: null
-  - trainer: default
+  - data: my_dataset # choose datamodule with `test_dataloader()` for evaluation
+  - model: resnet50
+  - logger: tensorboard
+  - trainer: gpu
   - paths: default
   - extras: default
   - hydra: default
-
+  - callbacks: default
+  
 task_name: "eval"
 
-tags: ["dev"]
+tags: ["resnet50", "orchid_classification"]
 
 # passing checkpoint path is necessary for evaluation
-ckpt_path: ???
+ckpt_path: D:\FinalYearProject\FYP-with-lightning-hydra-template\logs\train\runs\resnet50 2025-11-27 12-19-20\checkpoints\last.ckpt

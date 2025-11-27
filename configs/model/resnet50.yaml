@@ -22,5 +22,5 @@ net:
   freeze_backbone: false
 
 # compile model for faster training with pytorch 2.0
-compile: True 
+compile: False 
 num_classes: 10

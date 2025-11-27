@@ -11,12 +11,13 @@ model_checkpoint:
   monitor: "val/loss"
   mode: "min"
   save_last: True
+  # 是否在保存文件名中自动插入监控指标名称（如val/loss）
   auto_insert_metric_name: True
 
 early_stopping:
   monitor: "val/loss"
-  patience: 10
+  patience: 5
   mode: "min"
 
 model_summary:
-  max_depth: -1
+  max_depth: -1  # 显示模型所有层级的摘要信息（-1 表示不限制深度）

@@ -1,5 +1,12 @@
 _target_: src.models.orchid_module.OrchidLitModule
 
+net:
+  _target_: src.models.components.orchid_models.OrchidModel
+  model_name: null
+  num_classes: 19
+  pretrained: true
+  freeze_backbone: partial
+
 optimizer:
   _target_: torch.optim.AdamW
   _partial_: true
@@ -10,16 +17,12 @@ scheduler:
   _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
   _partial_: true
   mode: min
-  factor: 0.1
-  patience: 3
-
-net:
-  _target_: src.models.components.orchid_models.OrchidModel
-  model_name: dino_vit
-  num_classes: 10
-  pretrained: true
-  freeze_backbone: false
+  factor: 0.2
+  patience: 4
 
 # compile model for faster training with pytorch 2.0
 compile: False
-num_classes: 10
+num_classes: 19
+supcon: False
+temperature: 0.07   #supcon loss中的参数
+supcon_probe: False

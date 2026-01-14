@@ -1,18 +1,23 @@
-# path to root directory
-# this requires PROJECT_ROOT environment variable to exist
-# you can replace it with "." if you want the root to be the current working directory
+# 项目根目录路径
+# 这里使用 OmegaConf 的 oc.env 语法，读取环境变量 PROJECT_ROOT
+# 如果 PROJECT_ROOT 未设置，启动时会报错；若希望默认当前工作目录，可改为 "."
 root_dir: ${oc.env:PROJECT_ROOT}
 
-# path to data directory
+# 数据目录路径
+# 所有原始数据集、预处理文件统一放在 ${root_dir}/data/ 下
+# 例如训练集、验证集、测试集、词表文件等
 data_dir: ${paths.root_dir}/data/
 
-# path to logging directory
+# 日志目录路径
+# 训练日志、TensorBoard 事件文件、超参记录等统一写入 ${root_dir}/logs/
+# 建议按日期或实验名再建子目录，方便对比排查
 log_dir: ${paths.root_dir}/logs/
 
-# path to output directory, created dynamically by hydra
-# path generation pattern is specified in `configs/hydra/default.yaml`
-# use it to store all files generated during the run, like ckpts and metrics
+# 输出目录路径（由 Hydra 运行时动态生成）
+# 具体生成规则写在 configs/hydra/default.yaml 中，通常形如 outputs/YYYY-MM-DD/HH-MM-ss/
+# 该目录会自动保存模型检查点、指标 JSON、可视化图片等所有运行产物
 output_dir: ${hydra:runtime.output_dir}
 
-# path to working directory
+# 工作目录路径（Hydra 启动时的当前工作目录）
+# 在多进程或远程提交任务时，可据此定位代码根目录，确保相对路径读写正常
 work_dir: ${hydra:runtime.cwd}

@@ -1,0 +1,12 @@
+_target_: src.data.my_dataset_datamodule.MyDatasetDataModule
+data_dir: ${paths.data_dir}/my_dataset
+batch_size: 32 
+train_val_test_split: [0.8, 0.1, 0.1]
+num_workers: 0        # 数据加载时使用的子进程数，0 表示在主进程加载（调试/Windows 兼容）
+pin_memory: false     # 是否将数据张量锁页在 GPU 显存中，False 可节省显存但速度略慢
+image_size: 224
+seed: 42
+train_subset_ratio: 1.0 # 训练集子集比例，1.0 表示使用全部数据
+supcon: False
+
+

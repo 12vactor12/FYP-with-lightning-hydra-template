@@ -55,11 +55,33 @@ def visualize_tsne(features, labels, class_names, model_name, save_path):
     
     # Plot t-SNE
     plt.figure(figsize=(12, 10))
-    scatter = plt.scatter(features_tsne[:, 0], features_tsne[:, 1], c=labels, cmap='tab10', s=50, alpha=0.7)
+    
+    # 使用支持更多颜色的色图
+    num_classes = len(class_names)
+    if num_classes <= 10:
+        cmap = 'tab10'
+    elif num_classes <= 20:
+        cmap = 'tab20'
+    else:
+        # 使用连续色图，适合更多类别
+        cmap = 'rainbow'
+    
+    scatter = plt.scatter(features_tsne[:, 0], features_tsne[:, 1], c=labels, cmap=cmap, s=50, alpha=0.7)
     
     # Add legend
-    handles, _ = scatter.legend_elements()
-    plt.legend(handles, class_names, title="Orchid Varieties", bbox_to_anchor=(1.05, 1), loc='upper left')
+    unique_labels = np.unique(labels)
+    if len(unique_labels) == len(class_names):
+        # 创建自定义图例，确保每个类别都有图例项
+        handles = []
+        for i, class_name in enumerate(class_names):
+            # 为每个类别创建一个散点标记作为图例项
+            handle = plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=scatter.cmap(scatter.norm(i)), 
+                               markersize=10, label=class_name)
+            handles.append(handle)
+        plt.legend(handles, class_names, title="Orchid Varieties", bbox_to_anchor=(1.05, 1), loc='upper left')
+    else:
+        # 回退到自动生成图例
+        plt.legend(*scatter.legend_elements(), title="Orchid Varieties", bbox_to_anchor=(1.05, 1), loc='upper left')
     
     plt.title(f't-SNE Visualization of {model_name} Features', fontsize=16)
     plt.xlabel('t-SNE Component 1', fontsize=12)
@@ -89,7 +111,7 @@ def main(args):
         data_dir="data/my_dataset/",
         batch_size=32,
         num_workers=0,
-        pin_memory=False
+        pin_memory=True
     )
     
     # Setup the data module

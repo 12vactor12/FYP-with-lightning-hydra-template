@@ -5,10 +5,12 @@ tensorboard:
   # TensorBoard 日志文件的保存路径
   save_dir: "${paths.output_dir}/tensorboard/"        
   # 实验名称，null 表示使用默认名称              
-  name: null           
+  name: null
+  version: null      
   # 是否记录计算图，False 表示不记                                       
   log_graph: False                 
   #是否使用默认超参数指标，True 表示启用                                  
   default_hp_metric: True      
   # 日志键值前缀，空字符串表示无前缀                                  # 
-  prefix: ""                                                         
+  prefix: ""    
+

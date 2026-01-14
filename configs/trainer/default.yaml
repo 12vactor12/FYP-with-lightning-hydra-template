@@ -1,9 +1,25 @@
 # configs/trainer/gpu.yaml
 _target_: lightning.pytorch.trainer.Trainer
-default_root_dir: ${paths.log_dir}/train/runs
-min_epochs: 10
-max_epochs: 30
+default_root_dir: null
+# =========================
+# 基础运行设置
+# =========================
 accelerator: gpu
 devices: 1
-check_val_every_n_epoch: 1
 deterministic: false
+precision: 16-mixed 
+
+
+# =========================
+# 训练轮数控制
+# =========================
+min_epochs: 10
+max_epochs: 80
+check_val_every_n_epoch: 1
+
+# =========================
+# 稳定性 & 效率
+# =========================
+gradient_clip_val: 1.0     # 防止 SupCon / ViT 梯度爆
+gradient_clip_algorithm: norm
+accumulate_grad_batches: 1

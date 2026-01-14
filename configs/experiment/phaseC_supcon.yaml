@@ -1,0 +1,53 @@
+# @package _global_
+
+#模型：vit_base_16_dino
+#训练数据集比例：10% | 20% | 50%
+#类别：19类
+task_name: "SupCon vs CE"
+tags: ["${model.net.model_name}", "trainset=${data.train_subset_ratio}", "${loss_type}", "seed=${seed}"]
+
+loss_type: "SupCon"
+# 随机种子
+seed: 42
+
+# 覆盖默认配置
+defaults:
+  - override /data: default
+  - override /model: default
+  - override /callbacks: default
+  - override /trainer: default
+  - override /logger: tensorboard
+
+data:
+  supcon: True
+  batch_size: 32
+
+
+
+#supcon预训练配置
+model:
+  net:
+    model_name: "vit_base_16_dino"
+    supcon: True
+    proj_dim: 128
+    freeze_backbone: partial
+
+  supcon: True
+  temperature: 0.07   #supcon loss中的参数
+
+
+#supcon训练专用
+callbacks:
+  early_stopping: null
+  model_checkpoint: 
+    save_top_k: -1
+    monitor: null
+    every_n_epochs: 5
+    filename: "epoch{epoch:02d}"
+
+
+# 训练配置
+train: true
+test: true
+
+
